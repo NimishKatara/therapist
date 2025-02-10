@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 import whisper
 from gtts import gTTS
+from flask import Flask
 from pydub import AudioSegment
 from google.cloud import texttospeech
 import requests
@@ -43,12 +44,15 @@ GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemin
 # Supabase Setup
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-@app.on_event("startup")
-def generate_intro_audio():
-    """Generate an intro audio file when the server starts."""
-    intro_text = "Hey, I'm Jane, no cap. Think of me as your therapist."
-    tts = gTTS(text=intro_text, lang="en", slow=False)
-    tts.save("intro.mp3")
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "AI Therapist is running!"
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))  # Default to 5000 if PORT is not set
+    app.run(host='0.0.0.0', port=port)
 
 @app.get("/")
 async def root():
